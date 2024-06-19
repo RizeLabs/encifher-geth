@@ -329,9 +329,10 @@ type ChainConfig struct {
 	TerminalTotalDifficultyPassed bool `json:"terminalTotalDifficultyPassed,omitempty"`
 
 	// Various consensus engines
-	Ethash    *EthashConfig `json:"ethash,omitempty"`
-	Clique    *CliqueConfig `json:"clique,omitempty"`
-	IsDevMode bool          `json:"isDev,omitempty"`
+	Ethash    *EthashConfig   `json:"ethash,omitempty"`
+	Clique    *CliqueConfig   `json:"clique,omitempty"`
+	IsDevMode bool            `json:"isDev,omitempty"`
+	Encifher  *EncifherConfig `json:"encifher,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -353,6 +354,16 @@ func (c *CliqueConfig) String() string {
 	return "clique"
 }
 
+// ! Need to check this
+type EncifherConfig struct {
+	EIP1559Elasticity uint64 `json:"eip1559Elasticity"`
+}
+
+// String implements the stringer interface, returning the optimism fee config details.
+func (o *EncifherConfig) String() string {
+	return "encifher"
+}
+
 // Description returns a human-readable description of ChainConfig.
 func (c *ChainConfig) Description() string {
 	var banner string
@@ -364,6 +375,8 @@ func (c *ChainConfig) Description() string {
 	}
 	banner += fmt.Sprintf("Chain ID:  %v (%s)\n", c.ChainID, network)
 	switch {
+	case c.Encifher != nil:
+		banner += "Consensus: Encifher\n"
 	case c.Ethash != nil:
 		if c.TerminalTotalDifficulty == nil {
 			banner += "Consensus: Ethash (proof-of-work)\n"
@@ -543,6 +556,10 @@ func (c *ChainConfig) IsPrague(num *big.Int, time uint64) bool {
 // IsVerkle returns whether num is either equal to the Verkle fork time or greater.
 func (c *ChainConfig) IsVerkle(num *big.Int, time uint64) bool {
 	return c.IsLondon(num) && isTimestampForked(c.VerkleTime, time)
+}
+
+func (c *ChainConfig) IsEncifher(num *big.Int) bool {
+	return c.Encifher != nil
 }
 
 // CheckCompatible checks whether scheduled fork transitions have been imported
@@ -852,6 +869,7 @@ type Rules struct {
 	IsBerlin, IsLondon                                      bool
 	IsMerge, IsShanghai, IsCancun, IsPrague                 bool
 	IsVerkle                                                bool
+	IsEncifher                                              bool
 }
 
 // Rules ensures c's ChainID is not nil.
@@ -877,5 +895,6 @@ func (c *ChainConfig) Rules(num *big.Int, isMerge bool, timestamp uint64) Rules 
 		IsCancun:         c.IsCancun(num, timestamp),
 		IsPrague:         c.IsPrague(num, timestamp),
 		IsVerkle:         c.IsVerkle(num, timestamp),
+		IsEncifher:       isMerge && c.IsEncifher(num),
 	}
 }

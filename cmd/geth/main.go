@@ -143,6 +143,13 @@ var (
 		utils.GpoPercentileFlag,
 		utils.GpoMaxGasPriceFlag,
 		utils.GpoIgnoreGasPriceFlag,
+		utils.RollupSequencerHTTPFlag,
+		utils.RollupHistoricalRPCFlag,
+		utils.RollupHistoricalRPCTimeoutFlag,
+		utils.RollupDisableTxPoolGossipFlag,
+		utils.RollupComputePendingBlock,
+		utils.RollupHaltOnIncompatibleProtocolVersionFlag,
+		utils.RollupSuperchainUpgradesFlag,
 		configFileFlag,
 	}, utils.NetworkFlags, utils.DatabaseFlags)
 

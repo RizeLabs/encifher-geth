@@ -850,6 +850,54 @@ var (
 		Category: flags.GasPriceCategory,
 	}
 
+	// Rollup Flags
+	RollupSequencerHTTPFlag = &cli.StringFlag{
+		Name:     "rollup.sequencerhttp",
+		Usage:    "HTTP endpoint for the sequencer mempool",
+		Category: flags.RollupCategory,
+	}
+
+	RollupHistoricalRPCFlag = &cli.StringFlag{
+		Name:     "rollup.historicalrpc",
+		Usage:    "RPC endpoint for historical data.",
+		Category: flags.RollupCategory,
+	}
+
+	RollupHistoricalRPCTimeoutFlag = &cli.StringFlag{
+		Name:     "rollup.historicalrpctimeout",
+		Usage:    "Timeout for historical RPC requests.",
+		Value:    "5s",
+		Category: flags.RollupCategory,
+	}
+
+	RollupDisableTxPoolGossipFlag = &cli.BoolFlag{
+		Name:     "rollup.disabletxpoolgossip",
+		Usage:    "Disable transaction pool gossip.",
+		Category: flags.RollupCategory,
+	}
+	RollupEnableTxPoolAdmissionFlag = &cli.BoolFlag{
+		Name:     "rollup.enabletxpooladmission",
+		Usage:    "Add RPC-submitted transactions to the txpool (on by default if --rollup.sequencerhttp is not set).",
+		Category: flags.RollupCategory,
+	}
+	RollupComputePendingBlock = &cli.BoolFlag{
+		Name:     "rollup.computependingblock",
+		Usage:    "By default the pending block equals the latest block to save resources and not leak txs from the tx-pool, this flag enables computing of the pending block from the tx-pool instead.",
+		Category: flags.RollupCategory,
+	}
+	RollupHaltOnIncompatibleProtocolVersionFlag = &cli.StringFlag{
+		Name:     "rollup.halt",
+		Usage:    "Opt-in option to halt on incompatible protocol version requirements of the given level (major/minor/patch/none), as signaled through the Engine API by the rollup node",
+		Category: flags.RollupCategory,
+	}
+	RollupSuperchainUpgradesFlag = &cli.BoolFlag{
+		Name:     "rollup.superchain-upgrades",
+		Aliases:  []string{"beta.rollup.superchain-upgrades"},
+		Usage:    "Apply superchain-registry config changes to the local chain-configuration",
+		Category: flags.RollupCategory,
+		Value:    true,
+	}
+
 	// Metrics flags
 	MetricsEnabledFlag = &cli.BoolFlag{
 		Name:     "metrics",
@@ -1790,6 +1838,21 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *ethconfig.Config) {
 			cfg.EthDiscoveryURLs = SplitAndTrim(urls)
 		}
 	}
+
+	// Only configure sequencer http flag if we're running in verifier mode i.e. --mine is disabled.
+	if ctx.IsSet(RollupSequencerHTTPFlag.Name) && !ctx.IsSet(MiningEnabledFlag.Name) {
+		cfg.RollupSequencerHTTP = ctx.String(RollupSequencerHTTPFlag.Name)
+	}
+	if ctx.IsSet(RollupHistoricalRPCFlag.Name) {
+		cfg.RollupHistoricalRPC = ctx.String(RollupHistoricalRPCFlag.Name)
+	}
+	if ctx.IsSet(RollupHistoricalRPCTimeoutFlag.Name) {
+		cfg.RollupHistoricalRPCTimeout = ctx.Duration(RollupHistoricalRPCTimeoutFlag.Name)
+	}
+	cfg.RollupDisableTxPoolGossip = ctx.Bool(RollupDisableTxPoolGossipFlag.Name)
+	cfg.RollupDisableTxPoolAdmission = cfg.RollupSequencerHTTP != "" && !ctx.Bool(RollupEnableTxPoolAdmissionFlag.Name)
+	cfg.RollupHaltOnIncompatibleProtocolVersion = ctx.String(RollupHaltOnIncompatibleProtocolVersionFlag.Name)
+
 	// Override any default configs for hard coded networks.
 	switch {
 	case ctx.Bool(MainnetFlag.Name):

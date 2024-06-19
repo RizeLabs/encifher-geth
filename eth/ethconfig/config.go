@@ -169,6 +169,13 @@ type Config struct {
 
 	// OverrideVerkle (TODO: remove after the fork)
 	OverrideVerkle *uint64 `toml:",omitempty"`
+
+	RollupSequencerHTTP                     string
+	RollupHistoricalRPC                     string
+	RollupHistoricalRPCTimeout              time.Duration
+	RollupDisableTxPoolGossip               bool
+	RollupDisableTxPoolAdmission            bool
+	RollupHaltOnIncompatibleProtocolVersion string
 }
 
 // CreateConsensusEngine creates a consensus engine for the given chain config.
