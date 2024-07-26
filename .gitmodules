@@ -6,3 +6,11 @@
 	path = tests/evm-benchmarks
 	url = https://github.com/ipsilon/evm-benchmarks
 	shallow = true
+[submodule "fhevm-go"]
+	path = fhevm-go
+	url = https://github.com/zama-ai/fhevm-go.git
+  recursive = true
+  branch = release/0.2.x
+[submodule "fhevm-tfhe-cli"]
+	path = fhevm-tfhe-cli
+	url = https://github.com/zama-ai/fhevm-tfhe-cli
