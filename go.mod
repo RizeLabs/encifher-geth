@@ -2,7 +2,7 @@ module github.com/ethereum/go-ethereum
 
 go 1.21
 
-replace github.com/zama-ai/fhevm-go v0.2.0-5 => ../fhevm-go
+replace github.com/zama-ai/fhevm-go v0.2.0-5 => ./fhevm-go
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.2.0
