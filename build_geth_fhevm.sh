@@ -51,7 +51,7 @@ install_dependencies() {
 
 # Function to install Go
 install_go() {
-    local GO_VERSION="1.22.4"
+    local GO_VERSION="1.21.12"
     log INFO "Installing Go version ${GO_VERSION}..."
     wget -q "https://golang.org/dl/go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz"
     tar -C /usr/local -xzf "go${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz"
