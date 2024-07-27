@@ -42,9 +42,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
               # Now we have got the access of EC2 and we will start the deploy .
-              cd /home/ubuntu/encifher-geth &&
-              sudo docker stop $(sudo docker ps -aq) &&
-              sudo docker rm $(sudo docker ps -aq) &&
+              sudo docker ps -q | xargs -r sudo docker stop &&
+              sudo docker ps -aq | xargs -r sudo docker rm &&
               sudo docker pull ${{ env.DOCKER_IMAGE }} &&
               sudo docker run -d --name encifher-geth \
               -p 8545:8545 -p 8546:8546 \
