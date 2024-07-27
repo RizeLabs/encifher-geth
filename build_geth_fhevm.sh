@@ -77,6 +77,8 @@ install_rust() {
 build_fhevm() {
     log INFO "Building FHEVM components..."
 
+    git submodule update --init --recursive fhevm-go
+    git submodule update --init --recursive fhevm-tfhe-cli
     log DEBUG "Entering fhevm-tfhe-cli directory..."
     cd fhevm-tfhe-cli || { log ERROR "fhevm-tfhe-cli directory not found"; exit 1; }
 
