@@ -24,9 +24,14 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Automatic Tagging of Releases
+        id: increment-git-tag
+        run: |
+          bash ./build/git_update.sh -v minor
+
       - name: Build and push Docker image
         env:
-          DOCKER_IMAGE: anikep/encifher-geth:${{ github.sha }}
+          DOCKER_IMAGE: anikep/encifher-geth:${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
           docker build -t $DOCKER_IMAGE .
           docker push $DOCKER_IMAGE
@@ -36,16 +41,16 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           HOSTNAME: ${{secrets.SSH_HOST}}
           USER_NAME: ${{secrets.USER_NAME}}
-          DOCKER_IMAGE: anikep/encifher-geth:${{ github.sha }}
+          DOCKER_IMAGE: anikep/encifher-geth:${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
-              # Now we have got the access of EC2 and we will start the deploy .
-              sudo docker ps -q | xargs -r sudo docker stop &&
-              sudo docker ps -aq | xargs -r sudo docker rm &&
-              sudo docker pull ${{ env.DOCKER_IMAGE }} &&
-              sudo docker run -d --name encifher-geth \
+              sudo su &&
+              docker ps -q | xargs -r sudo docker stop &&
+              docker ps -aq | xargs -r sudo docker rm &&
+              docker pull ${{ env.DOCKER_IMAGE }} &&
+              docker run -d --name encifher-geth \
               -p 8545:8545 -p 8546:8546 \
               -v /home/ubuntu/encifher-geth/store8:/root/.ethereum \
               ${{ env.DOCKER_IMAGE }} \
