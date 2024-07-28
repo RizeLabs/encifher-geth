@@ -46,11 +46,10 @@ jobs:
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
-              sudo su &&
-              docker ps -q | xargs -r sudo docker stop &&
-              docker ps -aq | xargs -r sudo docker rm &&
-              docker pull ${{ env.DOCKER_IMAGE }} &&
-              docker run -d --name encifher-geth \
+              sudo docker ps -q | xargs -r sudo docker stop &&
+              sudo docker ps -aq | xargs -r sudo docker rm &&
+              sudo docker pull ${{ env.DOCKER_IMAGE }} &&
+              sudo docker run -d --name encifher-geth \
               -p 8545:8545 -p 8546:8546 \
               -v /home/ubuntu/encifher-geth/store8:/root/.ethereum \
               ${{ env.DOCKER_IMAGE }} \
