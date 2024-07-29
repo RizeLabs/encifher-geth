@@ -31,18 +31,15 @@ jobs:
       - name: Log in to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registry: ${{ secrets.ECR_REGISTRY }}
-          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Build, tag, and push image to Amazon ECR
+      - name: Build, tag, and push docker image to Amazon ECR
         env:
-          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          REGISTRY: ${{ steps.ecr-login.outputs.registry }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
       - name: Add SSH key
         run: |
@@ -60,12 +57,13 @@ jobs:
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+          DOCKER_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         run: |
           ssh -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
-            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-            docker stop encifher-geth || true
-            docker rm encifher-geth || true
-            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            docker pull ${{ env.DOCKER_IMAGE }}
+            docker ps -q | xargs -r docker stop &&
+            docker ps -aq | xargs -r docker rm &&
+            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 ${{ env.DOCKER_IMAGE}} \
             --http --http.api debug,personal,eth,net,web3 \
             --http.corsdomain "*" --allow-insecure-unlock \
             --dev --datadir /root/.ethereum --dev.period 2 \
