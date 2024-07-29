@@ -31,6 +31,9 @@ jobs:
       - name: Log in to Amazon ECR
         id: ecr-login
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          registry: ${{ secrets.ECR_REGISTRY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Build, tag, and push image to Amazon ECR
         env:
