@@ -1,0 +1,72 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - build-geth
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Geth
+        run: sudo make build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Automatic Tagging of Releases
+        id: increment-git-tag
+        run: |
+          bash ./build/git_update.sh -v patch
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Add EC2 instance to known hosts
+        run: ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
+          IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
+        run: |
+          ssh -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker stop encifher-geth || true
+            docker rm encifher-geth || true
+            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            --http --http.api debug,personal,eth,net,web3 \
+            --http.corsdomain "*" --allow-insecure-unlock \
+            --dev --datadir /root/.ethereum --dev.period 2 \
+            --http.port 8545 --ws --ws.api debug,personal,eth,net,web3 \
+            --ws.addr 0.0.0.0 --networkid 1337 --ws.port 8546 \
+            --ws.origins "*" --http.addr 0.0.0.0
+          EOF

@@ -2,7 +2,7 @@ name: Encifher Geth CI/CD Pipeline
 
 on:
   push:
-    branches: [build-geth]
+    branches: [master]
 
 jobs:
   Deploy:
@@ -27,7 +27,7 @@ jobs:
       - name: Automatic Tagging of Releases
         id: increment-git-tag
         run: |
-          bash ./build/git_update.sh -v minor
+          bash ./build/git_update.sh -v patch
 
       - name: Build and push Docker image
         env:
