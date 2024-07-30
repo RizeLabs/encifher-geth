@@ -62,7 +62,8 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
-            docker pull $DOCKER_IMAGE
+            echo $DOCKER_IMAGE
+            docker pull 750262681899.dkr.ecr.us-east-1.amazonaws.com/executor:v0.3.15
             docker ps -q | xargs -r docker stop &&
             docker ps -aq | xargs -r docker rm &&
             docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 $DOCKER_IMAGE \
