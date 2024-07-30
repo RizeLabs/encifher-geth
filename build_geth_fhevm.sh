@@ -71,8 +71,7 @@ build_fhevm() {
     log INFO "Building FHEVM components..."
 
     git submodule update --init --recursive fhevm-go
-    git submodule update --init --recursive git-lfs
-    export FHEVM_GO_KEYS_DIR=$(pwd)/git-lfs/tfhe-keys
+    export FHEVM_GO_KEYS_DIR=$(pwd)/gitlfs/tfhe-keys
 
     log DEBUG "Entering fhevm-go directory..."
     cd fhevm-go || { log ERROR "fhevm-go directory not found"; exit 1; }
