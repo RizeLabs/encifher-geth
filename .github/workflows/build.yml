@@ -59,18 +59,17 @@ jobs:
           EC2_PUBLIC_IP: ${{ secrets.EC2_PUBLIC_IP }}
           # IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
           IMAGE_TAG: v0.3.15
-          DOCKER_IMAGE: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
             echo ${{ env.ECR_REGISTRY }}
             echo ${{ env.ECR_REPOSITORY }}
             echo ${{ env.IMAGE_TAG }}
-            echo ${{ env.DOCKER_IMAGE }}
-            docker pull ${{ env.DOCKER_IMAGE }}
+            docker pull ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
             docker ps -q | xargs -r docker stop &&
             docker ps -aq | xargs -r docker rm &&
-            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 ${{ env.DOCKER_IMAGE }} \
+            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 \
+            ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
             --http --http.api debug,personal,eth,net,web3 \
             --http.corsdomain "*" --allow-insecure-unlock \
             --dev --datadir store8 --dev.period 2 \
