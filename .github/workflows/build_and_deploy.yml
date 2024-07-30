@@ -47,7 +47,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
 
               sudo docker ps -q | xargs -r sudo docker stop &&
-              sudo docker ps -aq | xargs -r sudo docker rm &&
+              sudo docker ps -aq | xargs -r sudo docker rm
               sudo docker pull ${{ env.DOCKER_IMAGE }} &&
               sudo docker run -d --name encifher-geth \
               -p 8545:8545 -p 8546:8546 \
@@ -55,7 +55,7 @@ jobs:
               ${{ env.DOCKER_IMAGE }} \
               --http --http.api debug,personal,eth,net,web3 \
               --http.corsdomain "*" --allow-insecure-unlock \
-              --dev --datadir /root/.ethereum --dev.period 2 \
+              --dev --datadir store8 --dev.period 2 \
               --http.port 8545 --ws --ws.api debug,personal,eth,net,web3 \
               --ws.addr 0.0.0.0 --networkid 1337 --ws.port 8546 \
               --ws.origins "*" --http.addr 0.0.0.0
