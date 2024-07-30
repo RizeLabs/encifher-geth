@@ -44,8 +44,9 @@ jobs:
       - name: Add SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_PEM_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.EC2_PEM_KEY }}" | tr -d '\r' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          cat ~/.ssh/id_rsa
 
       - name: Add EC2 instance to known hosts
         run: ssh-keyscan -H ${{ secrets.EC2_PUBLIC_IP }} >> ~/.ssh/known_hosts
@@ -59,12 +60,12 @@ jobs:
           IMAGE_TAG: ${{ steps.increment-git-tag.outputs.git-tag }}
           DOCKER_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         run: |
-          ssh -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
-            docker pull ${{ env.DOCKER_IMAGE }}
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $DOCKER_IMAGE
             docker ps -q | xargs -r docker stop &&
             docker ps -aq | xargs -r docker rm &&
-            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 ${{ env.DOCKER_IMAGE}} \
+            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 $DOCKER_IMAGE \
             -v ./store8:/root/.ethereum \
             --http --http.api debug,personal,eth,net,web3 \
             --http.corsdomain "*" --allow-insecure-unlock \
