@@ -60,7 +60,7 @@ jobs:
           DOCKER_IMAGE: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         run: |
           ssh -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
-            aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
+            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
             docker pull ${{ env.DOCKER_IMAGE }}
             docker ps -q | xargs -r docker stop &&
             docker ps -aq | xargs -r docker rm &&
