@@ -14,3 +14,6 @@
 [submodule "fhevm-tfhe-cli"]
 	path = fhevm-tfhe-cli
 	url = https://github.com/zama-ai/fhevm-tfhe-cli
+[submodule "git-lfs"]
+	path = git-lfs
+	url = https://github.com/RizeLabs/git-lfs.git
