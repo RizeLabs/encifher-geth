@@ -16,12 +16,12 @@ jobs:
       # - name: Build Geth
       #   run: sudo make build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Automatic Tagging of Releases
         id: increment-git-tag
@@ -63,10 +63,10 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $EC2_USER@$EC2_PUBLIC_IP << 'EOF'
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 750262681899.dkr.ecr.us-east-1.amazonaws.com
-            docker pull $DOCKER_IMAGE
+            docker pull ${{ env.DOCKER_IMAGE }}
             docker ps -q | xargs -r docker stop &&
             docker ps -aq | xargs -r docker rm &&
-            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 $DOCKER_IMAGE \
+            docker run -d --name encifher-geth -p 8545:8545 -p 8546:8546 ${{ env.DOCKER_IMAGE }} \
             --http --http.api debug,personal,eth,net,web3 \
             --http.corsdomain "*" --allow-insecure-unlock \
             --dev --datadir store8 --dev.period 2 \
