@@ -1,4 +1,1 @@
-# Auto detect text files and perform LF normalization
-* text=auto
-*.sol linguist-language=Solidity
-tfhe-keys/sks filter=lfs diff=lfs merge=lfs -text
+tfhe-keys/** filter=lfs diff=lfs merge=lfs -text
