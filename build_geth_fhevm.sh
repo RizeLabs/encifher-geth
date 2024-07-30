@@ -71,6 +71,7 @@ build_fhevm() {
     log INFO "Building FHEVM components..."
 
     git submodule update --init --recursive fhevm-go
+    git submodule add https://github.com/RizeLabs/git-lfs.git tfhe-keys
     export FHEVM_GO_KEYS_DIR=$(pwd)/tfhe-keys
     log INFO "TFHE keys available in $FHEVM_GO_KEYS_DIR"
 
