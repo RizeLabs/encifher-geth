@@ -12,3 +12,4 @@
 [submodule "fhevm-go-gitlfs"]
 	path = fhevm-go-gitlfs
 	url = https://github.com/RizeLabs/fhevm-go-gitlfs.git
+  branch = main
