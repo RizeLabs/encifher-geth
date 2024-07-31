@@ -74,8 +74,8 @@ build_fhevm() {
     git submodule update --init --recursive fhevm-go-gitlfs
     log INFO "TFHE keys available in $FHEVM_GO_KEYS_DIR"
 
-    log DEBUG "Entering fhevm-go directory..."
-    cd fhevm-go || { log ERROR "fhevm-go directory not found"; exit 1; }
+    log DEBUG "Entering fhevm-go-gitlfs directory..."
+    cd fhevm-go-gitlfs || { log ERROR "fhevm-go-gitlfs directory not found"; exit 1; }
 
     # log DEBUG "Checking out release/0.2.x..."
     # if git checkout release/0.2.x; then

@@ -10,5 +10,5 @@
 	path = gitlfs
 	url = https://github.com/RizeLabs/gitlfs.git
 [submodule "fhevm-go-gitlfs"]
-	path = fhevm-go
+	path = fhevm-go-gitlfs
 	url = https://github.com/RizeLabs/fhevm-go-gitlfs.git
