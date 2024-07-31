@@ -70,7 +70,6 @@ install_rust() {
 build_fhevm() {
     log INFO "Building FHEVM components..."
 
-    git submodule update --init --recursive fhevm-go
     export FHEVM_GO_KEYS_DIR=$(pwd)/gitlfs/tfhe-keys
 
     log DEBUG "Entering fhevm-go directory..."
