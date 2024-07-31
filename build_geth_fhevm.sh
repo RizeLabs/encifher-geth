@@ -71,6 +71,7 @@ build_fhevm() {
     log INFO "Building FHEVM components..."
 
     git submodule update --init --recursive gitlfs
+    git submodule update --init --recursive fhevm-go-gitlfs
     log INFO "TFHE keys available in $FHEVM_GO_KEYS_DIR"
 
     log DEBUG "Entering fhevm-go directory..."

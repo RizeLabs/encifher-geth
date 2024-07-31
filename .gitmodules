@@ -9,3 +9,6 @@
 [submodule "gitlfs"]
 	path = gitlfs
 	url = https://github.com/RizeLabs/gitlfs.git
+[submodule "fhevm-go-gitlfs"]
+	path = fhevm-go
+	url = https://github.com/RizeLabs/gitlfs.git

@@ -21,6 +21,11 @@ jobs:
           git submodule sync
           git submodule update --init --recursive --remote gitlfs
 
+      - name: Update fhevm-go submodule
+        run: |
+          git submodule sync
+          git submodule update --init --recursive --remote fhevm-go-gitlfs
+
       - name: Build Geth
         run: sudo make build
 
