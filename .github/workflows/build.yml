@@ -13,7 +13,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          submodules: true
+          submodules: 'recursive'
+          fetch-depth: 1
+
+      - name: Update gitlfs submodule
+        run: |
+          git submodule sync
+          git submodule update --init --recursive --remote gitlfs
 
       - name: Build Geth
         run: sudo make build
