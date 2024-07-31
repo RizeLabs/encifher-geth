@@ -6,3 +6,10 @@
 	path = tests/evm-benchmarks
 	url = https://github.com/ipsilon/evm-benchmarks
 	shallow = true
+[submodule "gitlfs"]
+	path = gitlfs
+	url = https://github.com/RizeLabs/gitlfs.git
+[submodule "fhevm-go-gitlfs"]
+	path = fhevm-go-gitlfs
+	url = https://github.com/RizeLabs/fhevm-go-gitlfs.git
+  branch = main
