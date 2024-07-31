@@ -71,11 +71,22 @@ build_fhevm() {
     log INFO "Building FHEVM components..."
 
     git submodule update --init --recursive gitlfs
-    git submodule update --init --recursive fhevm-go-gitlfs
     log INFO "TFHE keys available in $FHEVM_GO_KEYS_DIR"
 
-    log DEBUG "Entering fhevm-go-gitlfs directory..."
-    cd fhevm-go-gitlfs || { log ERROR "fhevm-go-gitlfs directory not found"; exit 1; }
+    log DEBUG "Updating fhevm-go-gitlfs submodule..."
+    git submodule update --init --recursive fhevm-go-gitlfs
+
+    log DEBUG "Fetching Git LFS objects for fhevm-go-gitlfs..."
+    cd fhevm-go-gitlfs
+    git lfs install
+    git lfs pull
+    cd ..
+
+    log DEBUG "Copying fhevm-go-gitlfs to fhevm-go..."
+    cp -R fhevm-go-gitlfs fhevm-go
+
+    log DEBUG "Entering fhevm-go directory..."
+    cd fhevm-go || { log ERROR "fhevm-go directory not found"; exit 1; }
 
     # log DEBUG "Checking out release/0.2.x..."
     # if git checkout release/0.2.x; then
